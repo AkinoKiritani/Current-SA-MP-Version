@@ -1262,6 +1262,27 @@ public OnPlayerCommandText(playerid, cmdtext[])
 		return 1;
 	}
 
+	if(strcmp(cmd, "/disablecamtarget",true) == 0) {
+	    EnablePlayerCameraTarget(playerid, 0);
+		return 1;
+	}
+
+	if(strcmp(cmd, "/enablecamtarget",true) == 0) {
+        EnablePlayerCameraTarget(playerid, 1);
+		return 1;
+	}
+
+	if(strcmp(cmd, "/poolsize", true) == 0) {
+	    new msg[256+1];
+	    new HigestPlayerId = GetPlayerPoolSize();
+	    new HigestVehicleId = GetVehiclePoolSize();
+	 	format(msg,sizeof(msg),"PlayerPoolSize: %d", HigestPlayerId);
+		SendClientMessage(playerid, 0xFFFFFFFF, msg);
+        format(msg,sizeof(msg),"VehiclePoolSize: %d", HigestVehicleId);
+		SendClientMessage(playerid, 0xFFFFFFFF, msg);
+		return 1;
+	}
+
   	return 0;
 }
 

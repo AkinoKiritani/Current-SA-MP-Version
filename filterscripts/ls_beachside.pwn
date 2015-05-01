@@ -11,20 +11,24 @@
 // * Added code to remove the existing building, add the new building and
 //   adapted the elevator code so it works in this new building
 //
+// Updated to v1.02 by Matite in February 2015
+// * Added code for the new car park object and edited the elevator to
+//   include the car park
 //
-// This script creates the new LS BeachSide 1 building object, removes the
-// existing GTASA LS BeachSide building object and creates an elevator that
-// can be used to travel between the building foyer and all levels.
+// This script creates the new LS BeachSide building object, removes the
+// existing GTASA building object, adds the new car park object and creates
+// an elevator that can be used to travel between all levels.
 //
 // You can un-comment the OnPlayerCommandText callback below to enable a simple
 // teleport command (/lsb) that teleports you to the LS BeachSide building.
 //
 // Warning...
 // This script uses a total of:
-// * 30 objects = 1 for the elevator, 2 for the elevator doors, 26 for the elevator
-//   floor doors and 1 for the building (replacement LS BeachSide building)
-// * 14 3D Text Labels = 13 on the floors and 1 in the elevator
-// * 1 dialog (for the elevator)
+// * 34 objects = 1 for the elevator, 2 for the elevator doors, 28 for the elevator
+//   floor doors, 1 for the building (replacement LS BeachSide building), 1 for the
+//   interior floors object and 1 for the underground car park object
+// * 15 3D Text Labels = 14 on the floors and 1 in the elevator
+// * 1 dialog (for the elevator - dialog ID 877)
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
@@ -67,7 +71,7 @@
 #define Y_FDOOR_R_OPENED    (-1609.870971)
 #define Y_FDOOR_L_OPENED    (-1609.306030)
 
-#define GROUND_Z_COORD      (33.825077)
+#define GROUND_Z_COORD      (18.755348)     // (33.825077)
 #define X_ELEVATOR_POS      (287.942413)
 #define Y_ELEVATOR_POS      (-1609.341064)
 
@@ -87,8 +91,9 @@
 // ---------
 
 // Elevator floor names for the 3D text labels
-static FloorNames[13][] =
+static FloorNames[14][] =
 {
+	"Car Park",
 	"Ground Floor",
 	"First Floor",
 	"Second Floor",
@@ -105,21 +110,22 @@ static FloorNames[13][] =
 };
 
 // Elevator floor Z heights
-static Float:FloorZOffsets[13] =
+static Float:FloorZOffsets[14] =
 {
-    0.0, 		// 0.0,
-    14.061004,	// Distance from ground floor to 1st floor is more than all other floors
-    18.561004,  // 14.061004 + (4.5 * 1.0)
-    23.061004,  // 14.061004 + (4.5 * 2.0)
-    27.561004,  // 14.061004 + (4.5 * 3.0)
-    32.061004,  // 14.061004 + (4.5 * 4.0)
-    36.561004,  // 14.061004 + (4.5 * 5.0)
-    41.061004,  // 14.061004 + (4.5 * 1.0)
-    45.561004,  // 14.061004 + (4.5 * 1.0)
-    50.061004,  // 14.061004 + (4.5 * 8.0)
-    54.561004,  // 14.061004 + (4.5 * 9.0)
-    59.061004,  // 14.061004 + (4.5 * 10.0)
-    63.561004,  // 14.061004 + (4.5 * 11.0)
+    0.0, 		// Car Park
+    15.069729,  // Ground Floor
+    29.130733,	// First Floor
+    33.630733,  // Second Floor = 29.130733 + 4.5
+    38.130733,  // Third Floor = 33.630733 + 4.5
+    42.630733,  // Fourth Floor = 38.130733 + 4.5
+    47.130733,  // Fifth Floor = 42.630733 + 4.5
+    51.630733,  // Sixth Floor = 47.130733 + 4.5
+    56.130733,  // Seventh Floor = 51.630733 + 4.5
+    60.630733,  // Eighth Floor = 56.130733 + 4.5
+    65.130733,  // Ninth Floor = 60.630733 + 4.5
+    69.630733,  // Tenth Floor = 65.130733 + 4.5
+    74.130733,  // Eleventh Floor = 69.630733 + 4.5
+    78.630733,  // Twelfth Floor = 74.130733 + 4.5
 };
 
 // -----------------------------------------------------------------------------
@@ -131,14 +137,18 @@ static Float:FloorZOffsets[13] =
 new LSBeachSide1Object;
 new LSBeachSide1InteriorObject;
 
+// Stores the created object number of the new underground cark park so it can
+// be destroyed when the filterscript is unloaded
+new LSBeachSide1CPObject;
+
 // Stores the created object numbers of the elevator, the elevator doors and
 // the elevator floor doors so they can be destroyed when the filterscript
 // is unloaded
-new Obj_Elevator, Obj_ElevatorDoors[2], Obj_FloorDoors[13][2];
+new Obj_Elevator, Obj_ElevatorDoors[2], Obj_FloorDoors[14][2];
 	
 // Stores a reference to the 3D text labels used on each floor and inside the
 // elevator itself so they can be detroyed when the filterscript is unloaded
-new Text3D:Label_Elevator, Text3D:Label_Floors[13];
+new Text3D:Label_Elevator, Text3D:Label_Floors[14];
 
 // Stores the current state of the elevator (ie ELEVATOR_STATE_IDLE,
 // ELEVATOR_STATE_WAITING or ELEVATOR_STATE_MOVING)
@@ -150,11 +160,11 @@ new ElevatorState;
 new	ElevatorFloor;  
 
 // Stores the elevator queue for each floor
-new ElevatorQueue[13];
+new ElevatorQueue[14];
 
 // Stores who requested the floor for the elevator queue...
 // FloorRequestedBy[floor_id] = playerid;  (stores who requested which floor)
-new	FloorRequestedBy[13];
+new	FloorRequestedBy[14];
 
 // Used for a timer that makes the elevator move faster after players start
 // surfing the object
@@ -234,8 +244,8 @@ public OnFilterScriptInit()
 	print("\n");
 	print("  |---------------------------------------------------");
 	print("  |--- LS BeachSide Filterscript");
-    print("  |--  Script v1.01");
-    print("  |--  12th January 2015");
+    print("  |--  Script v1.02");
+    print("  |--  10th February 2015");
 	print("  |---------------------------------------------------");
 
 	// Create the LS BeachSide Building object
@@ -246,6 +256,12 @@ public OnFilterScriptInit()
 
     // Display information in the Server Console
     print("  |--  LS BeachSide Building and Interior objects created");
+    
+    // Create the LS BeachSide underground car park object
+    LSBeachSide1CPObject = CreateObject(19800, 280.297, -1606.2, 22.3984, 0, 0, 0);
+    
+    // Display information in the Server Console
+    print("  |--  LS BeachSide Underground Car Park object created");
 
     // Reset the elevator queue
 	ResetElevatorQueue();
@@ -263,12 +279,13 @@ public OnFilterScriptInit()
         // Check if the player is connected and not a NPC
         if (IsPlayerConnected(i) && !IsPlayerNPC(i))
         {
-            // Remove default GTASA BeachSide map objects and LOD
+            // Remove default GTASA building map object, LOD, night lights and lamp post
             // (so any player currently ingame does not have to rejoin for them
 			//  to be removed when this filterscript is loaded)
 			RemoveBuildingForPlayer(i, 6391, 280.297, -1606.2, 72.3984, 250.0); // Building
 			RemoveBuildingForPlayer(i, 6394, 280.297, -1606.2, 72.3984, 250.0); // LOD
 			RemoveBuildingForPlayer(i, 6518, 280.297, -1606.2, 72.3984, 250.0); // Night Lights
+			RemoveBuildingForPlayer(i, 1226, 265.481, -1581.1, 32.9311, 5.0); // Lamp Post
         }
     }
 
@@ -292,12 +309,23 @@ public OnFilterScriptExit()
     // Check for valid object
 	if (IsValidObject(LSBeachSide1InteriorObject))
 	{
-		// Destroy the LS BeachSide Building interior object
+		// Destroy the LS BeachSide Building Interior object
 		DestroyObject(LSBeachSide1InteriorObject);
 
 		// Display information in the Server Console
 		print("  |---------------------------------------------------");
     	print("  |--  LS BeachSide Building Interior object destroyed");
+    }
+    
+    // Check for valid object
+	if (IsValidObject(LSBeachSide1CPObject))
+	{
+		// Destroy the LS BeachSide Underground Car Park object
+		DestroyObject(LSBeachSide1CPObject);
+
+		// Display information in the Server Console
+		print("  |---------------------------------------------------");
+    	print("  |--  LS BeachSide Underground Car Park object destroyed");
     }
 
     // Destroy the elevator, the elevator doors and the elevator floor doors
@@ -313,10 +341,11 @@ public OnFilterScriptExit()
 
 public OnPlayerConnect(playerid)
 {
-    // Remove default GTASA BeachSide map objects and LOD
+    // Remove default GTASA building map object, LOD, night lights and lamp post
 	RemoveBuildingForPlayer(playerid, 6391, 280.297, -1606.2, 72.3984, 250.0); // Building
 	RemoveBuildingForPlayer(playerid, 6394, 280.297, -1606.2, 72.3984, 250.0); // LOD
 	RemoveBuildingForPlayer(playerid, 6518, 280.297, -1606.2, 72.3984, 250.0); // Night Lights
+	RemoveBuildingForPlayer(playerid, 1226, 265.481, -1581.1, 32.9311, 5.0);   // Lamp Post
 
 	// Exit here
 	return 1;
@@ -385,16 +414,22 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 {
-	if(!IsPlayerInAnyVehicle(playerid) && (newkeys & KEY_YES))
+	// Check if the player is not in a vehicle and pressed the conversation yes key (Y by default)
+	if (!IsPlayerInAnyVehicle(playerid) && (newkeys & KEY_YES))
 	{
+	    // Create variables and get the players current position
 	    new Float:pos[3];
 	    GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
 	    
+	    // For debug
 	    //printf("X = %0.2f | Y = %0.2f | Z = %0.2f", pos[0], pos[1], pos[2]);
 
         // Check if the player is using the button inside the elevator
-	    if(pos[1] > (Y_ELEVATOR_POS - 1.8) && pos[1] < (Y_ELEVATOR_POS + 1.8) && pos[0] < (X_ELEVATOR_POS + 1.8) && pos[0] > (X_ELEVATOR_POS - 1.8))
+	    if (pos[1] > (Y_ELEVATOR_POS - 1.8) && pos[1] < (Y_ELEVATOR_POS + 1.8) && pos[0] < (X_ELEVATOR_POS + 1.8) && pos[0] > (X_ELEVATOR_POS - 1.8))
 	    {
+	        // The player is using the button inside the elevator
+	        // --------------------------------------------------
+	        
 	        // Show the elevator dialog to the player
 	        ShowElevatorDialog(playerid);
 	    }
@@ -403,10 +438,11 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		    // Check if the player is using the button on one of the floors
 		    if(pos[1] < (Y_ELEVATOR_POS - 1.81) && pos[1] > (Y_ELEVATOR_POS - 3.8) && pos[0] > (X_ELEVATOR_POS + 1.21) && pos[0] < (X_ELEVATOR_POS + 3.8))
 		    {
-		        // The player is most likely using an elevator floor button, check which floor
+		        // The player is most likely using an elevator floor button... check which floor
+		        // -----------------------------------------------------------------------------
 		        
-		        // Create variable (number of floors to check)
-				new i = 12;
+		        // Create variable with the number of floors to check (total floors minus 1)
+				new i = 13;
 
 				// Loop
 				while(pos[2] < GetDoorsZCoordForFloor(i) + 3.5 && i > 0)
@@ -415,7 +451,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				if(i == 0 && pos[2] < GetDoorsZCoordForFloor(0) + 2.0)
 				    i = -1;
 
-				if (i <= 11)
+				if (i <= 12)
 				{
 				    // Check if the elevator is not moving (idle or waiting)
 				    if (ElevatorState != ELEVATOR_STATE_MOVING)
@@ -426,8 +462,10 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				            // Display gametext message to the player
 							GameTextForPlayer(playerid, "~n~~n~~n~~n~~n~~n~~n~~y~~h~LS BeachSide Elevator Is~n~~y~~h~Already On This Floor...~n~~w~Walk Inside It~n~~w~And Press '~k~~CONVERSATION_YES~'", 3500, 3);
 
-							// Display chat text message to the player and exit here
+							// Display chat text message to the player
 	                        SendClientMessage(playerid, COLOR_MESSAGE_YELLOW, "* The LS BeachSide elevator is already on this floor... walk inside it and press '{FFFFFF}~k~~CONVERSATION_YES~{CCCCCC}'");
+	                        
+	                        // Exit here (return 1 so this callback is processed in other scripts)
 	                        return 1;
 				        }
 				    }
@@ -449,65 +487,69 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					}
 					else
 					{
-					    // Format chat text message
-						format(strTempString, sizeof(strTempString), "* The LS BeachSide elevator has been called... it is currently on the %s.", FloorNames[ElevatorFloor]);
+					    // Check if the floor is the car park
+					    if (ElevatorFloor == 0)
+					    {
+					    	// Format chat text message
+							format(strTempString, sizeof(strTempString), "* The LS BeachSide elevator has been called... it is currently at the %s.", FloorNames[ElevatorFloor]);
+						}
+						else
+						{
+					    	// Format chat text message
+							format(strTempString, sizeof(strTempString), "* The LS BeachSide elevator has been called... it is currently on the %s.", FloorNames[ElevatorFloor]);
+						}
 					}
 					
 					// Display formatted chat text message to the player
 					SendClientMessage(playerid, COLOR_MESSAGE_YELLOW, strTempString);
 
-					// Exit here
+					// Exit here (return 1 so this callback is processed in other scripts)
 					return 1;
 				}
 		    }
 		}
 	}
 
+    // Exit here (return 1 so this callback is processed in other scripts)
 	return 1;
 }
 
 // ------------------------ Functions ------------------------
 stock Elevator_Initialize()
 {
-	// Initializes the elevator.
-
+	// Create the elevator and elevator door objects
 	Obj_Elevator 			= CreateObject(18755, X_ELEVATOR_POS, Y_ELEVATOR_POS, GROUND_Z_COORD, 0.000000, 0.000000, 80.000000);
 	Obj_ElevatorDoors[0] 	= CreateObject(18757, X_ELEVATOR_POS, Y_ELEVATOR_POS, GROUND_Z_COORD, 0.000000, 0.000000, 80.000000);
 	Obj_ElevatorDoors[1] 	= CreateObject(18756, X_ELEVATOR_POS, Y_ELEVATOR_POS, GROUND_Z_COORD, 0.000000, 0.000000, 80.000000);
 
-	Label_Elevator          = Create3DTextLabel("{CCCCCC}Press '{FFFFFF}~k~~CONVERSATION_YES~{CCCCCC}' to use elevator", 0xCCCCCCAA, X_ELEVATOR_POS + 1.6, Y_ELEVATOR_POS - 1.85, GROUND_Z_COORD - 0.4, 4.0, 0, 1);
+	// Create the 3D text label for inside the elevator
+	Label_Elevator = Create3DTextLabel("{CCCCCC}Press '{FFFFFF}~k~~CONVERSATION_YES~{CCCCCC}' to use elevator", 0xCCCCCCAA, X_ELEVATOR_POS + 1.6, Y_ELEVATOR_POS - 1.85, GROUND_Z_COORD - 0.4, 4.0, 0, 1);
 
-	new string[128],
-		Float:z;
+	// Create variables
+	new string[128], Float:z;
 
-	for(new i; i < sizeof(Obj_FloorDoors); i ++)
+	// Loop
+	for (new i; i < sizeof(Obj_FloorDoors); i ++)
 	{
+	    // Create elevator floor door objects
 	    Obj_FloorDoors[i][0] 	= CreateObject(18757, X_ELEVATOR_POS, Y_ELEVATOR_POS - 0.245, GetDoorsZCoordForFloor(i) + 0.05, 0.000000, 0.000000, 80.000000);
 		Obj_FloorDoors[i][1] 	= CreateObject(18756, X_ELEVATOR_POS, Y_ELEVATOR_POS - 0.245, GetDoorsZCoordForFloor(i) + 0.05, 0.000000, 0.000000, 80.000000);
 
+        // Format string for the floor 3D text label
 		format(string, sizeof(string), "{CCCCCC}[%s]\n{CCCCCC}Press '{FFFFFF}~k~~CONVERSATION_YES~{CCCCCC}' to call", FloorNames[i]);
 
-		// Calculate label Z position
-		if (i == 0)
-		{
-	    	z = GROUND_Z_COORD;
-	    }
-	    else if (i == 1)
-	    {
-	        z = GROUND_Z_COORD + 14.061004;
-	    }
-	    else
-	    {
-	        z = GROUND_Z_COORD + 14.061004 + ((i - 1) * 4.5);
-	    }
+		// Get label Z position
+		z = GetDoorsZCoordForFloor(i);
 
-		Label_Floors[i]         = Create3DTextLabel(string, 0xCCCCCCAA, X_ELEVATOR_POS + 2, Y_ELEVATOR_POS -3, z - 0.2, 10.5, 0, 1);
+		// Create floor label
+		Label_Floors[i] = Create3DTextLabel(string, 0xCCCCCCAA, X_ELEVATOR_POS + 2, Y_ELEVATOR_POS -3, z - 0.2, 10.5, 0, 1);
 	}
 
-	// Open ground floor doors:
+	// Open the car park floor doors and the elevator doors
 	Floor_OpenDoors(0);
 	Elevator_OpenDoors();
 
+	// Exit here
 	return 1;
 }
 
@@ -741,7 +783,14 @@ stock CallElevator(playerid, floorid)
 }
 
 stock Float:GetElevatorZCoordForFloor(floorid)
+{
+	// Return Z height value
     return (GROUND_Z_COORD + FloorZOffsets[floorid]);
+}
 
 stock Float:GetDoorsZCoordForFloor(floorid)
+{
+    // Return Z height value
 	return (GROUND_Z_COORD + FloorZOffsets[floorid]);
+}
+

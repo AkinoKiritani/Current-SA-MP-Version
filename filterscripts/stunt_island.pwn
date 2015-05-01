@@ -1,7 +1,11 @@
 // -----------------------------------------------------------------------------
 // Example Filterscript for the new Stunt Island
 // ---------------------------------------------
-// By Matite in January 2015
+// By Matite and Kye in January 2015
+//
+// Updated to v1.02 by Matite in February 2015
+// * Added code to display the current lap record details when the player
+//   types the /si teleport command
 //
 // This script creates a Modular Island with a stunt set made of the new half tube
 // objects. The location is just off the coast in the northern part of the map. It
@@ -10,11 +14,13 @@
 // Warning, this script...
 // * Uses a total of 467 player objects
 // * Adds 6 x Infernuses
-// * Has a teleport (/si) enabled by default
+// * Has a teleport (/si) command enabled by default
 // * Enables AutoFix (/af) for all players by default
 // * Enables 10x NOS for all Infernuses by default
 // * Enables adding 10x NOS to all Infernuses by using the fire key
-// * Enables the /flip command for all players
+// * Disables vehicle collisions for the Infernuses created by this script
+//
+// Note: you can enable the /flip command by removing the code comment lines
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
@@ -110,20 +116,26 @@ new FastestLapName[MAX_PLAYER_NAME + 1];
 
 public OnPlayerStateChange(playerid, newstate, oldstate)
 {
-    if(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER)
+	// Check if the new player state is driver or passenger
+    if (newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER)
 	{
-        // if they are driving one of our infernuses, disable vehicle collisions
+        // Get the players vehicle ID
         new player_vehicle = GetPlayerVehicleID(playerid);
+        
+        // Check if the player is driving one of the Infernuses created by this filterscript
         if (IsSIInfernus(player_vehicle))
 		{
+		    // Disable vehicle collisions and set PVar
             DisableRemoteVehicleCollisions(playerid, true);
             SetPVarInt(playerid, "SIVehicleCols", 1);
 		}
 	}
 	else
 	{
-	    if(GetPVarInt(playerid, "SIVehicleCols"))
+	    // Check if the PVar is set (player had vehicle collisions disabled)
+	    if (GetPVarInt(playerid, "SIVehicleCols"))
 		{
+		    // Enable vehicle collisions and set PVar
 		    DisableRemoteVehicleCollisions(playerid, false);
 		    SetPVarInt(playerid, "SIVehicleCols", 0);
 		}
@@ -318,8 +330,19 @@ public OnPlayerCommandText(playerid, cmdtext[])
 		// Fix camera position after teleporting
 		SetCameraBehindPlayer(playerid);
 		
-		// Display a chat text message to the player
+		// Display chat text message to the player
 		SendClientMessage(playerid, COLOR_MESSAGE_YELLOW, "* You teleported to the Stunt Island... drive into the checkpoint to start your timed lap.");
+
+		// Check if there is a previous lap record
+		if (FastestLapTime != 999)
+		{
+		    // Create variable
+			new strTempString[128];
+			
+			// Format and display chat text message to the player
+			format(strTempString, sizeof(strTempString), "* The current record is %d seconds previously set by %s.", FastestLapTime, FastestLapName);
+       		SendClientMessage(playerid, COLOR_MESSAGE_YELLOW, strTempString);
+       	}
 
 		// Send a gametext message to the player
 		GameTextForPlayer(playerid, "~b~~h~Stunt Island!", 3000, 3);
@@ -420,9 +443,9 @@ public OnFilterScriptInit()
     // Display information in the Server Console
 	print("\n");
 	print("  |---------------------------------------------------");
-	print("  |--- Stunt Island Filterscript by Matite");
-    print("  |--  Script v1.01");
-    print("  |--  22nd January 2015");
+	print("  |--- Stunt Island Filterscript by Matite and Kye");
+    print("  |--  Script v1.02");
+    print("  |--  13th February 2015");
 	print("  |---------------------------------------------------");
 	
 	// Loop

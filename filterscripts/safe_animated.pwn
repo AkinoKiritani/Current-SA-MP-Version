@@ -3,6 +3,13 @@
 // -----------------------------------------------
 // By Matite in January 2015
 //
+// v1.0.1
+// * Inital release in RC1
+//
+// v1.0.2
+// * Changed the Z offset in the MoveObject parameters to fix an issue with
+//   movement caused by rounding on some PCs
+//
 // This script removes the existing safe in Madd Dogg's Mansion then creates the
 // new safe and door object in its place. You can then use commands to open and
 // close the safe door.
@@ -85,7 +92,7 @@ public OnPlayerCommandText(playerid, cmdtext[])
 	    }
 	
 	    // Animate the safe door opening (the small Z offset is required)
-	    MoveObject(SafeDoorObject, 1230.225708, -806.648803, 1083.5 + 0.001, 0.005, 0, 0, 280);
+	    MoveObject(SafeDoorObject, 1230.225708, -806.648803, 1083.5 + 0.01, 0.005, 0, 0, 280);
 	
 	    // Set the safe door status
 	    SafeDoorStatus = SAFE_DOOR_OPEN;
@@ -107,7 +114,7 @@ public OnPlayerCommandText(playerid, cmdtext[])
 	    }
 
 	    // Animate the safe door closing (the small Z offset is required)
-	    MoveObject(SafeDoorObject, 1230.225708, -806.648803, 1083.5 - 0.001, 0.005, 0, 0, 0);
+	    MoveObject(SafeDoorObject, 1230.225708, -806.648803, 1083.5 - 0.01, 0.005, 0, 0, 0);
 
 	    // Set the safe door status
 	    SafeDoorStatus = SAFE_DOOR_CLOSED;
@@ -129,8 +136,8 @@ public OnFilterScriptInit()
 	print("\n");
 	print("  |---------------------------------------------------");
 	print("  |--- Safe and Door Filterscript by Matite");
-    print("  |--  Script v1.01");
-    print("  |--  14th January 2015");
+    print("  |--  Script v1.02");
+    print("  |--  13th February 2015");
 	print("  |---------------------------------------------------");
 
 	// Create the safe object
@@ -140,7 +147,7 @@ public OnFilterScriptInit()
     print("  |--  Safe object created");
     
     // Create the safe door object
-    SafeDoorObject = CreateObject(19619, 1230.225708, -806.648803, 1083.5, 0, 0, 0);
+    SafeDoorObject = CreateObject(19619, 1230.225708, -806.648803, 1083.5 - 0.01, 0, 0, 0);
 
     // Display information in the Server Console
     print("  |--  Safe door object created");
