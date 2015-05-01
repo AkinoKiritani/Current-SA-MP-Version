@@ -47,6 +47,8 @@ Weapon\tAmount\tPrice\n\
 {FFFFFF}MP5\t90\t{FF0000}$3500\
 "
 
+new Text:txtSpriteTest[5];
+		
 //-------------------------------------------------
 
 SpawnVehicle_InfrontOfPlayer(playerid, vehiclemodel, color1, color2)
@@ -1355,7 +1357,7 @@ public OnPlayerCommandText(playerid, cmdtext[])
 
 	if(strcmp(cmd, "/opencardoors", true ) == 0)
 	{
-	    if(GetPlayerVehicleID(playerid) && GetPlayerVehicleID(playerid) != INVALID_VEHICLE_ID)
+        if(GetPlayerVehicleID(playerid) && GetPlayerVehicleID(playerid) != INVALID_VEHICLE_ID)
 		{
 			SetVehicleParamsCarDoors(GetPlayerVehicleID(playerid), VEHICLE_PARAMS_ON, VEHICLE_PARAMS_ON, VEHICLE_PARAMS_ON, VEHICLE_PARAMS_ON);
 	    }
@@ -1364,7 +1366,6 @@ public OnPlayerCommandText(playerid, cmdtext[])
 		{
 			SetVehicleParamsCarDoors(GetPlayerCameraTargetVehicle(playerid), VEHICLE_PARAMS_ON, VEHICLE_PARAMS_ON, VEHICLE_PARAMS_ON, VEHICLE_PARAMS_ON);
 	    }*/
-
 	    return 1;
 	}
 
@@ -1379,7 +1380,6 @@ public OnPlayerCommandText(playerid, cmdtext[])
 		{
 			SetVehicleParamsCarDoors(GetPlayerCameraTargetVehicle(playerid), VEHICLE_PARAMS_OFF, VEHICLE_PARAMS_OFF, VEHICLE_PARAMS_OFF, VEHICLE_PARAMS_OFF);
 	    }*/
-
  	    return 1;
 	}
 	
@@ -1401,6 +1401,57 @@ public OnPlayerCommandText(playerid, cmdtext[])
 	    return 1;
 	}
 
+	if(strcmp(cmd, "/spritetest", true ) == 0)
+	{
+    	txtSpriteTest[0] = TextDrawCreate(100.0, 100.0, "ld_grav:timer"); // Text is txdfile:texture
+    	TextDrawFont(txtSpriteTest[0], 4); // Font ID 4 is the sprite draw font
+    	TextDrawColor(txtSpriteTest[0],0xFFFFFFFF);
+    	TextDrawTextSize(txtSpriteTest[0],100.0,100.0); // Text size is the Width:Height
+    	TextDrawShowForPlayer(playerid,txtSpriteTest[0]);
+    	
+    	txtSpriteTest[1] = TextDrawCreate(200.0, 100.0, "ld_grav:bee2"); // Text is txdfile:texture
+    	TextDrawFont(txtSpriteTest[1], 4); // Font ID 4 is the sprite draw font
+    	TextDrawColor(txtSpriteTest[1],0xFFFFFFFF);
+    	TextDrawTextSize(txtSpriteTest[1],100.0,100.0); // Text size is the Width:Height
+    	TextDrawShowForPlayer(playerid,txtSpriteTest[1]);
+    	
+    	txtSpriteTest[2] = TextDrawCreate(100.0, 200.0, "ld_slot:r_69"); // Text is txdfile:texture
+    	TextDrawFont(txtSpriteTest[2], 4); // Font ID 4 is the sprite draw font
+    	TextDrawColor(txtSpriteTest[2],0xFFFFFFFF);
+    	TextDrawTextSize(txtSpriteTest[2],100.0,100.0); // Text size is the Width:Height
+    	TextDrawShowForPlayer(playerid,txtSpriteTest[2]);
+
+		txtSpriteTest[3] = TextDrawCreate(200.0, 200.0, "ld_slot:cherry"); // Text is txdfile:texture
+    	TextDrawFont(txtSpriteTest[3], 4); // Font ID 4 is the sprite draw font
+    	TextDrawColor(txtSpriteTest[3],0xFFFFFFFF);
+    	TextDrawTextSize(txtSpriteTest[3],100.0,100.0); // Text size is the Width:Height
+    	TextDrawShowForPlayer(playerid,txtSpriteTest[3]);
+    	
+    	txtSpriteTest[4] = TextDrawCreate(100.0, 300.0, "ld_card:cd9d"); // Text is txdfile:texture
+    	TextDrawFont(txtSpriteTest[4], 4); // Font ID 4 is the sprite draw font
+    	TextDrawColor(txtSpriteTest[4],0xFFFFFFFF);
+    	TextDrawTextSize(txtSpriteTest[4],100.0,100.0); // Text size is the Width:Height
+    	TextDrawShowForPlayer(playerid,txtSpriteTest[4]);
+    	
+    	return 1;
+	}
+	
+	if(strcmp(cmd, "/delspritetest", true ) == 0)
+	{
+		TextDrawDestroy(txtSpriteTest[0]);
+		TextDrawDestroy(txtSpriteTest[1]);
+		TextDrawDestroy(txtSpriteTest[2]);
+		TextDrawDestroy(txtSpriteTest[3]);
+		TextDrawDestroy(txtSpriteTest[4]);
+		return 1;
+	}
+	
+	if(strcmp(cmd, "/removeallbuilding", true ) == 0)
+	{
+		RemoveBuildingForPlayer(playerid, -1, 0.0, 0.0, 0.0, 6000.0);
+		return 1;
+	}
+	
   	return 0;
 }
 

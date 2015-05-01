@@ -355,7 +355,8 @@ public OnGameModeInit()
 	DisableInteriorEnterExits();
 	SetWeather(2);
 	SetWorldTime(11);
-
+	
+	//SetObjectsDefaultCameraCol(true);
 	//UsePlayerPedAnims();
 	//ManualVehicleEngineAndLights();
 	//LimitGlobalChatRadius(300.0);
