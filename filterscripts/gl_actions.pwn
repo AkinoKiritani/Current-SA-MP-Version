@@ -214,7 +214,8 @@ public OnPlayerCommandText(playerid, cmdtext[])
 	}
 	// Arms crossed
     if (strcmp("/crossarms", cmdtext, true) == 0) {
-          LoopingAnim(playerid, "COP_AMBIENT", "Coplook_loop", 4.0, 0, 1, 1, 1, -1); // Arms crossed
+          //LoopingAnim(playerid, "COP_AMBIENT", "Coplook_loop", 4.0, 0, 1, 1, 1, -1); // Arms crossed
+          LoopingAnim(playerid, "COP_AMBIENT", "Coplook_loop", 4.0, 0, 0, 0, 0, -1); // Arms crossed
 		  return 1;
 	}
 	// Lay Down

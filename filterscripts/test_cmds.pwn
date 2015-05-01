@@ -48,7 +48,7 @@ Weapon\tAmount\tPrice\n\
 "
 
 new Text:txtSpriteTest[5];
-		
+
 //-------------------------------------------------
 
 SpawnVehicle_InfrontOfPlayer(playerid, vehiclemodel, color1, color2)
@@ -1445,13 +1445,13 @@ public OnPlayerCommandText(playerid, cmdtext[])
 		TextDrawDestroy(txtSpriteTest[4]);
 		return 1;
 	}
-	
+
 	if(strcmp(cmd, "/removeallbuilding", true ) == 0)
 	{
 		RemoveBuildingForPlayer(playerid, -1, 0.0, 0.0, 0.0, 6000.0);
 		return 1;
 	}
-	
+
   	return 0;
 }
 
