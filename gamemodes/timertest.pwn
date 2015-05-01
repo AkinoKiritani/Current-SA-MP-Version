@@ -2,6 +2,8 @@
 
 forward OneSecTimer();
 
+new lasttick = 0;
+
 main()
 {
 	print("\n----------------------------------");
@@ -20,9 +22,15 @@ public OnGameModeInit()
 }
 
 public OneSecTimer() {
+
+	if(lasttick == 0) {
+     	lasttick = GetTickCount();
+		return;
+	}
 	new sText[256];
-	format(sText,sizeof(sText),"GetTickCount = %d",GetTickCount());
+	format(sText,sizeof(sText),"GetTickCountOffset = %d",GetTickCount() - lasttick);
 	print(sText);
 	SendClientMessageToAll(0xFF0000, sText);
+	lasttick = GetTickCount();
 }
 
