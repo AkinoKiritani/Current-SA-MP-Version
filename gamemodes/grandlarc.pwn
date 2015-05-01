@@ -34,8 +34,8 @@ new Text:txtLosSantos;
 new Text:txtSanFierro;
 new Text:txtLasVenturas;
 
-new thisanimid=0;
-new lastanimid=0;
+//new thisanimid=0;
+//new lastanimid=0;
 
 //----------------------------------------------------------
 
@@ -492,10 +492,10 @@ public OnPlayerUpdate(playerid)
 	}
 	
 	// No weapons in interiors
-	if(GetPlayerInterior(playerid) != 0 && GetPlayerWeapon(playerid) != 0) {
-	    SetPlayerArmedWeapon(playerid,0); // fists
-	    return 0; // no syncing until they change their weapon
-	}
+	//if(GetPlayerInterior(playerid) != 0 && GetPlayerWeapon(playerid) != 0) {
+	    //SetPlayerArmedWeapon(playerid,0); // fists
+	    //return 0; // no syncing until they change their weapon
+	//}
 	
 	// Don't allow minigun
 	if(GetPlayerWeapon(playerid) == WEAPON_MINIGUN) {

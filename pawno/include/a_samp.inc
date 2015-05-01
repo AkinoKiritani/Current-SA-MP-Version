@@ -79,6 +79,7 @@ native Float:atan(Float:value);
 native Float:atan2(Float:x, Float:y);
 native GetPlayerPoolSize();
 native GetVehiclePoolSize();
+native GetActorPoolSize();
 
 // Game
 native SetGameModeText(const string[]);
@@ -358,6 +359,7 @@ forward OnActorStreamOut(actorid, forplayerid);
 forward OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]);
 forward OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart);
 forward OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart);
+forward OnPlayerGiveDamageActor(playerid, damaged_actorid, Float:amount, weaponid, bodypart);
 forward OnPlayerClickMap(playerid, Float:fX, Float:fY, Float:fZ);
 forward OnPlayerClickTextDraw(playerid, Text:clickedid);
 forward OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid);

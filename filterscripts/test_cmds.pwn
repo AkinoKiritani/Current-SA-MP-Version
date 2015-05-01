@@ -49,6 +49,8 @@ Weapon\tAmount\tPrice\n\
 
 new Text:txtSpriteTest[5];
 
+new test_actor_id = INVALID_ACTOR_ID;
+
 //-------------------------------------------------
 
 SpawnVehicle_InfrontOfPlayer(playerid, vehiclemodel, color1, color2)
@@ -1452,6 +1454,41 @@ public OnPlayerCommandText(playerid, cmdtext[])
 		return 1;
 	}
 
+	if(strcmp(cmd, "/actoratme", true ) == 0)
+	{
+	  	new Float:X, Float:Y, Float:Z, Float:fang;
+	    GetPlayerPos(playerid, X, Y, Z);
+	    GetPlayerFacingAngle(playerid, fang);
+		test_actor_id = CreateActor(305, X+1.0, Y+1.0, Z+0.5, fang);
+		//SetActorInvulnerable(test_actor_id);
+		SetActorVirtualWorld(test_actor_id, GetPlayerVirtualWorld(playerid));
+		return 1;
+	}
+
+	if(strcmp(cmd, "/actorground", true) == 0) {
+	    ApplyActorAnimation(test_actor_id, "BEACH", "ParkSit_M_loop", 4.0, 1, 0, 0, 0, 0);
+		return 1;
+	}
+
+	if(strcmp(cmd, "/actorclear", true) == 0) {
+	    ClearActorAnimations(test_actor_id);
+		return 1;
+	}
+
+	if(strcmp(cmd, "/actorface", true) == 0) {
+	    new Float:fang;
+	    GetPlayerFacingAngle(playerid, fang);
+	    SetActorFacingAngle(test_actor_id, fang);
+		return 1;
+	}
+
+	if(strcmp(cmd, "/actorpos", true) == 0) {
+	   	new Float:X, Float:Y, Float:Z;
+	    GetPlayerPos(playerid, X, Y, Z);
+	    SetActorPos(test_actor_id, X+1.0, Y+1.0, Z);
+		return 1;
+	}
+
   	return 0;
 }
 
@@ -1752,12 +1789,12 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 	fwrite(file, message);
 	fclose(file);
 	
-	new LastVectors[128+1];
-	new Float:OriginX, Float:OriginY, Float:OriginZ;
-	new Float:HitX, Float:HitY, Float:HitZ;
-	GetPlayerLastShotVectors(playerid, OriginX, OriginY, OriginZ, HitX, HitY, HitZ);
-	format(LastVectors, 128, "Last Vectors: [%.2f, %.2f, %.2f] [%.2f, %.2f, %.2f]", OriginX, OriginY, OriginZ, HitX, HitY, HitZ);
-	SendClientMessage(playerid, 0xFFFFFFFF, LastVectors);
+	//new LastVectors[128+1];
+	//new Float:OriginX, Float:OriginY, Float:OriginZ;
+	//new Float:HitX, Float:HitY, Float:HitZ;
+	//GetPlayerLastShotVectors(playerid, OriginX, OriginY, OriginZ, HitX, HitY, HitZ);
+	//format(LastVectors, 128, "Last Vectors: [%.2f, %.2f, %.2f] [%.2f, %.2f, %.2f]", OriginX, OriginY, OriginZ, HitX, HitY, HitZ);
+	//SendClientMessage(playerid, 0xFFFFFFFF, LastVectors);
 	
 	SendClientMessage(playerid, 0xFFFFFFFF, message);
  	return 1;
@@ -1828,6 +1865,28 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 	fclose(file);
 	SendClientMessageToAll(0xFFFFFFFF, message);
 }*/
+
+
+//-------------------------------------------
+/*
+public OnPlayerGiveDamageActor(playerid, damaged_actorid, Float:amount, weaponid, bodypart)
+{
+    new message[256+1];
+    new weapname[64+1];
+    
+    GetWeaponName(weaponid, weapname, 64);
+    format(message, 256, "PlayerGiveDamageActor(%d) to Actor(%d) (%f) weapon: (%s) bodypart: %d\r\n", playerid, damaged_actorid, amount, weapname, bodypart);
+    SendClientMessageToAll(0xFFFFFFFF, message);
+    
+	if(IsValidActor(damaged_actorid)) {
+	    new Float:fActorHealth;
+	    GetActorHealth(damaged_actorid, fActorHealth);
+	    fActorHealth -= amount;
+		if(fActorHealth < 0.0) fActorHealth = 0.0;
+		SetActorHealth(damaged_actorid, fActorHealth);
+	}
+}
+*/
 //-------------------------------------------
 
 /*
