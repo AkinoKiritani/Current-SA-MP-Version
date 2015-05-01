@@ -103,6 +103,41 @@ public ShowTestDialog()
 
 //-------------------------------------------------
 
+TabListDialogTest(playerid)
+{
+      new listitems[] =
+  	  "Deagle\t$5000\t100\n" \
+	  "Sawnoff\t$5000\t100\n" \
+	  "Pistol\t$1000\t50\n" \
+	  "M4\t$10000\t100\n" \
+	  "MP5\t$7500\t200\n" \
+	  "Grenade\t$500\t1\n" \
+	  "Parachute\t$10000\t1\n" \
+	  "Lorikeet\t$50000\t500\n";
+
+	  ShowPlayerDialog(playerid,2,DIALOG_STYLE_TABLIST,"Buy Weapon",listitems,"Select","Cancel");
+}
+
+//-------------------------------------------------
+
+TabListHeadersDialogTest(playerid)
+{
+      new listitems[] =
+      "Weapon\tPrice\tAmmo\n" \
+  	  "Deagle\t$5000\t100\n" \
+	  "Sawnoff\t$5000\t100\n" \
+	  "Pistol\t$1000\t50\n" \
+	  "M4\t$10000\t100\n" \
+	  "MP5\t$7500\t200\n" \
+	  "Grenade\t$500\t1\n" \
+	  "Parachute\t$10000\t1\n" \
+	  "Lorikeet\t$50000\t500\n";
+
+	  ShowPlayerDialog(playerid,2,DIALOG_STYLE_TABLIST_HEADERS,"Buy Weapon",listitems,"Select","Cancel");
+}
+
+//-------------------------------------------------
+
 public TimedVehicleDeath()
 {
 	if(vehicleid_tokill > 0) {
@@ -480,6 +515,16 @@ public OnPlayerCommandText(playerid, cmdtext[])
         return 1;
 	}
 	
+	if(strcmp(cmd, "/testtablist", true) == 0) {
+	    TabListDialogTest(playerid);
+        return 1;
+	}
+	
+	if(strcmp(cmd, "/testtablistheaders", true) == 0) {
+	    TabListHeadersDialogTest(playerid);
+        return 1;
+	}
+
     if(strcmp(cmd, "/testclosebox", true) == 0) {
 	    ShowPlayerDialog(playerid,-1,0,"","","","");
         return 1;
@@ -1465,13 +1510,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	if(dialogid == 2) { // Our example listbox
 		if(response) {
 			new message[256+1];
-			if(listitem != 5) {
-				format(message, 256, "You selected item %d:", listitem);
-		    	SendClientMessage(playerid, 0xFFFFFFFF, message);
-		    	SendClientMessage(playerid, 0xFFFFFFFF, inputtext);
-			} else {
-			    SendClientMessage(playerid, 0x5555FFFF, "A Lorikeet is NOT a weapon!");
-			}
+			format(message, 256, "You selected item %d:", listitem);
+		    SendClientMessage(playerid, 0xFFFFFFFF, message);
+		    SendClientMessage(playerid, 0xFFFFFFFF, inputtext);
 		} else {
 		    SendClientMessage(playerid, 0xFFFFFFFF, "You selected Cancel");
 		}

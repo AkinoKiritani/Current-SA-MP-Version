@@ -294,6 +294,30 @@ public OnPlayerCommandText(playerid, cmdtext[])
          return 1;
     }
     
+    // Collapse
+    if(strcmp(cmd, "/collapse", true) == 0) {
+		 LoopingAnim(playerid,"PED","FALL_COLLAPSE",4.0,1,0,0,0,0);
+         return 1;
+    }
+    
+     // fall
+    if(strcmp(cmd, "/fallover", true) == 0) {
+		 LoopingAnim(playerid,"PED","FALL_FALL",4.0,1,0,0,0,0);
+         return 1;
+    }
+
+    // ko
+    if(strcmp(cmd, "/ko1", true) == 0) {
+		 LoopingAnim(playerid,"PED","KO_SHOT_STOM",200.0, 0, 1, 1, 1, -1);
+         return 1;
+    }
+    
+    // ko
+    if(strcmp(cmd, "/ko2", true) == 0) {
+		 LoopingAnim(playerid,"PED","KO_SHOT_FACE",4.0, 0, 1, 1, 1, -1);
+         return 1;
+    }
+
     /* Would allow people to troll... but would be cool as a script
 	   controlled function
     // Bed Sleep R
