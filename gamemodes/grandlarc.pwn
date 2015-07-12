@@ -450,7 +450,7 @@ public OnGameModeInit()
 	total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/pilots.txt");
 
    	// LAS VENTURAS
-     total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/lv_law.txt");
+    total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/lv_law.txt");
     total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/lv_airport.txt");
     total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/lv_gen.txt");
     

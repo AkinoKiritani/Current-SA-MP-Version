@@ -1466,7 +1466,7 @@ public OnPlayerCommandText(playerid, cmdtext[])
 	}
 
 	if(strcmp(cmd, "/actorground", true) == 0) {
-	    ApplyActorAnimation(test_actor_id, "BEACH", "ParkSit_M_loop", 4.0, 1, 0, 0, 0, 0);
+	    ApplyActorAnimation(test_actor_id, "BEACH", "ParkSit_M_loop", 4.0, 1, 1, 1, 1, -1);
 		return 1;
 	}
 
